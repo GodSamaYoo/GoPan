@@ -557,6 +557,19 @@ func RegisterRoutes(e *echo.Echo) {
 		return ctx.JSON(200,"succeed")
 	})
 
+	//文件解压缩
+	e.PUT("/api/UnArchive", func(ctx echo.Context) error {
+		tmp := new(UnArchiveFile)
+		_ = ctx.Bind(tmp)
+		enkey,err := ctx.Cookie("GODKEY")
+		if err != nil {
+			return err
+		}
+		email,_ := DesDecrypt(enkey.Value,DesKey)
+		go UnArchiver(tmp,email)
+		return ctx.JSON(200, "succeed")
+	})
+
 }
 
 

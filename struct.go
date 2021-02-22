@@ -151,3 +151,8 @@ type aria2accepturl struct {
 	Url  []string `json:"url" form:"url" query:"url"`
 	Path string   `json:"path" form:"path" query:"path"`
 }
+type UnArchiveFile struct {
+	FileID string `json:"FileID" form:"FileID" query:"FileID"`
+	NewPath string `json:"NewPath" form:"NewPath" query:"NewPath"`
+	PassWord string `json:"PassWord" form:"PassWord" query:"PassWord"`
+}

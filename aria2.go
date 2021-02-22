@@ -111,6 +111,11 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event)   {
 					CreateDir(b.Email,path.Dir(path_),path.Base(path_))
 				}
 			}
+			err := os.RemoveAll(infos.Dir)
+			if err != nil {
+				fmt.Println("移除临时文件失败")
+				fmt.Println(err)
+			}
 		}
 	}
 }

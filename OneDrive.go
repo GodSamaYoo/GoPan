@@ -8,8 +8,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
+	"time"
 )
 //首次获取刷新密匙
 func FirstGetRefreshToken(tmp *StoreModel) bool{
@@ -302,7 +304,58 @@ func GetThumbnail(itemid string,onedriveid int) string {
 	return url_
 }
 
-//本地文件上传
+//本地文件上传  长度,邮箱,绝对路径（带文件名）,网盘路径,文件总体相对路径
+func FileUpOneDrive(length int,email ,path1,path2,path3 string)  {
+	path_ := path.Dir(path1[len(path3):])
+	if path2 == "/" {
+		if path_ == "." {
+			path_ = "/"
+		}
+	} else {
+		if path_ == "." {
+			path_ = path2
+		} else {
+			path_ = path2+path_
+		}
+	}
+	c,d := GetOneDriveAdd(email,path_,path.Base(path1),length)
+	if d == "" {
+		fmt.Println(path2)
+		fmt.Println(path.Base(path1))
+		return
+	}
+	itemid := Aria2OneDriveUp(path1,length,d,c)
+	picture := []string{"jpg", "jpeg", "bmp", "gif", "png", "tif"}
+	tp := path.Ext(path.Base(path1))
+	url_ := ""
+	if tp != "" {
+		for _,v_ := range picture{
+			if tp[1:] == v_{
+				url_ = GetThumbnail(itemid,c)
+				break
+			}
+		}
+	}
+	fileid := md5_(path.Base(path1) + time.Now().String())
+	if url_ != "" {
+		os.Mkdir("Thumbnail",0777)
+		file, _ := http.Get(url_)
+		defer file.Body.Close()
+		files,_ := ioutil.ReadAll(file.Body)
+		_ = ioutil.WriteFile("Thumbnail/"+fileid+".jpg", files, 0644)
+	}
+	a := UserQuery(&User{Email: email})
+	DataAdd(&Data{
+		FileID:  fileid,
+		UserID:  a.UserID,
+		Name:    path.Base(path1),
+		Type:    "file",
+		Path:    path_,
+		Size:    length/1024,
+		StoreID: c,
+		ItemID:  itemid,
+	})
+}
 func Aria2OneDriveUp(filepath string,size int,url string,storeid int) string {
 	f,_ := os.Open(filepath)
 	defer f.Close()
@@ -347,7 +400,6 @@ func Aria2OneDriveUp(filepath string,size int,url string,storeid int) string {
 	}
 	return gjson.Get(status,"id").Str
 }
-
 func OneDriveUp(url string,chunk io.Reader,begin,end,filesize int,storeid int) string {
 	method := "PUT"
 
