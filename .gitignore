@@ -1,0 +1,8 @@
+.idea/
+*.exe
+Thumbnail/
+*.db
+public/
+*.ini
+tmp/
+TmpFile/
