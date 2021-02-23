@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -74,9 +76,51 @@ func GetUserInfo(email string) *UserInfo {
 	return nil
 }
 
-func AddressConvert(email,path,OneDrivePath string) string {
-	if path == "/" {
-		return OneDrivePath+"/"+email
+//判断本地容量是否足够
+func IsLocalVolume(Need int64) bool {
+	used,_ := DirSize(TmpPath)
+	free := TmpVolume - used
+	if free < Need {
+		return false
 	}
-	return OneDrivePath+"/"+email+path
+	return true
+}
+
+//判断用户容量是否足够
+func IsUserVolume(email string,Need int64) bool {
+	a := UserQuery(&User{
+		Email: email,
+	})
+	free := a.Volume - a.Used
+	if free < Need {
+		return false
+	}
+	return true
+}
+
+//判断储存策略容量是否足够
+
+func IsStoreVolume(id int,Need int64) bool {
+	a := StoreQuery(&Store{
+		ID: id,
+	})
+	free := a.Volume - a.Used
+	if free < Need {
+		return false
+	}
+	return true
+}
+
+
+
+//获取目录已用大小  单位：KB
+func DirSize(path string) (int64,error) {
+	var size int64
+	err := filepath.Walk(path,func(_ string,info os.FileInfo,err error) error {
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return err
+	})
+	return size/1024+1,err
 }

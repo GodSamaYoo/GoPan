@@ -60,7 +60,7 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event)   {
 			})
 			dir_ := strings.ReplaceAll(infos.Dir,`\`,`/`)
 			for _,vv := range infos.Files {
-				length,_ :=strconv.Atoi(vv.Length)
+				length,_ := strconv.ParseInt(ReadIni("TmpFile", "volume"),10,64)
 				c,d := GetOneDriveAdd(b.Email,a.Path,path.Base(vv.Path),length)
 				if d == "" {
 					return
@@ -103,10 +103,11 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event)   {
 					Name:    path.Base(vv.Path),
 					Type:    "file",
 					Path:    path_,
-					Size:    length/1024,
+					Size:    length/1024+1,
 					StoreID: c,
 					ItemID:  itemid,
 				})
+				UserUpdate(&User{UserID: b.UserID,Used: b.Used+length/1024+1})
 				if path_ != "/" {
 					CreateDir(b.Email,path.Dir(path_),path.Base(path_))
 				}

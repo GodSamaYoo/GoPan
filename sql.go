@@ -209,6 +209,13 @@ func TaskAdd(tmp *Task) bool {
 	}
 	return false
 }
+func TaskUpdate(tmp *Task) bool {
+	num := db.Model(&Task{}).Where("tmp_path = ?",tmp.TmpPath).Updates(tmp).RowsAffected
+	if num == 1 {
+		return true
+	}
+	return false
+}
 func TaskDelete(tmp *Task) bool {
 	num := db.Delete(tmp,"tmp_path = ?",tmp.TmpPath).RowsAffected
 	if num == 1 {
@@ -301,13 +308,17 @@ func DirDelete(fileid string)  {
 		path = a.Path + "/" + a.Name + "%"
 	}
 	db.Where("path LIKE ? AND user_id = ?",path,a.UserID).Find(&tmp_)
+	totalsize := int64(0)
 	for _,v := range tmp_ {
 		if DeleteOneDriveFile(v.ItemID,v.StoreID) {
+			totalsize += v.Size
 			DataDelete(&Data{
 				FileID: v.FileID,
 			})
 		}
 	}
+	b := UserQuery(&User{UserID: a.UserID})
+	UserUpdate(&User{UserID: a.UserID,Used: b.Used-totalsize})
 	DataDelete(&Data{
 		FileID: fileid,
 	})

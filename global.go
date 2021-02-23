@@ -11,3 +11,4 @@ var TmpPath string
 var OneDriveTokens map[int]OneDriveInfo
 var aria2client rpc.Client
 var aria2path string
+var TmpVolume int64

@@ -12,12 +12,35 @@ import (
 	"time"
 )
 
-//解压缩
-func UnArchiver(tmp *UnArchiveFile,email string) bool {
-	path_ := md5_(time.Now().String())
+//解压
+func UnArchiver(tmp *UnArchiveFile,email string)  {
+	t := UserQuery(&User{
+		Email: email,
+	})
+	a := DataQuery(&Data{FileID: tmp.FileID})
+	n :=Task{
+		UserID:  t.UserID,
+		Path:    tmp.NewPath,
+		TmpPath: "",
+		Type:    "解压",
+		Status:  "正在解压",
+	}
+	if !IsUserVolume(email,a.Size * 3 / 2 + 1) {
+		n.Status = "用户容量不足"
+		TaskAdd(&n)
+		return
+	}
+	if !IsLocalVolume (a.Size * 3 / 2 + 1) {
+		n.Status = "服务器本地容量不足"
+		TaskAdd(&n)
+		return
+	}
+	path_ := md5_(time.Now().String()+tmp.FileID)
+	u := path_
+	n.TmpPath = path_
+	TaskAdd(&n)
 	path_ = TmpPath +"/"+path_
 	_ = os.Mkdir(path_,0777)
-	a := DataQuery(&Data{FileID: tmp.FileID})
 	url := GetOneDriveDownload(a.ItemID,a.StoreID)
 	file, _ := http.Get(url)
 	defer file.Body.Close()
@@ -28,7 +51,11 @@ func UnArchiver(tmp *UnArchiveFile,email string) bool {
 		if err != nil {
 			fmt.Println("解压失败:")
 			fmt.Println(err)
-			return false
+			TaskUpdate(&Task{
+				TmpPath: u,
+				Status:  "解压失败",
+			})
+			return
 		}
 	} else if tmp.PassWord != "" || strings.ToLower(path.Ext(a.Name))  == "rar"{
 		b := archiver.NewRar()
@@ -37,14 +64,34 @@ func UnArchiver(tmp *UnArchiveFile,email string) bool {
 		if err != nil {
 			fmt.Println("解压失败:")
 			fmt.Println(err)
-			return false
+			TaskUpdate(&Task{
+				TmpPath: u,
+				Status:  "解压失败",
+			})
+			return
 		}
 	} else {
-		return false
+		TaskUpdate(&Task{
+			TmpPath: u,
+			Status:  "解压失败",
+		})
+		return
 	}
+	TaskUpdate(&Task{
+		TmpPath: u,
+		Status:  "解压失败",
+	})
+	TaskUpdate(&Task{
+		TmpPath: u,
+		Status:  "正在上传",
+	})
 	PathFileUpload(path_+"/unarchive",email,tmp.NewPath)
+	TaskUpdate(&Task{
+		TmpPath: u,
+		Status:  "解压成功",
+	})
 	_ = os.RemoveAll(path_)
-	return true
+	return
 }
 
 //目录文件上传
@@ -75,7 +122,7 @@ func PathFileUpload(path_ string,email string,saveph string)  {
 				ppp = strings.ReplaceAll(ppp,`\`,`/`)
 				pppp,_ := filepath.Abs(path_)
 				pppp = strings.ReplaceAll(pppp,`\`,`/`)
-				FileUpOneDrive(int(info.Size()),email,ppp,saveph,pppp)
+				FileUpOneDrive(info.Size(),email,ppp,saveph,pppp)
 			}
 		}
 		i++

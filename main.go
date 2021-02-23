@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/robfig/cron/v3"
+	"strconv"
 )
 
 
@@ -16,6 +17,7 @@ func main() {
 	ServicePort := ReadIni("Service", "port")
 	DesKey = ReadIni("Des","key")
 	TmpPath = ReadIni("TmpFile", "path")
+	TmpVolume,_ = strconv.ParseInt(ReadIni("TmpFile", "volume"),10,64)
 	OneDriveTokens = make(map[int]OneDriveInfo)
 	go RefreshAllToken()
 	c := cron.New()

@@ -57,6 +57,7 @@ func RegisterRoutes(e *echo.Echo) {
 			return ctx.JSON(200,"failed")
 		}
 		if DeleteOneDriveFile(a.ItemID,a.StoreID) {
+			UserUpdate(&User{UserID: b.UserID,Used: b.Used-a.Size})
 			DataDelete(&Data{
 				FileID: id,
 			})
@@ -126,7 +127,7 @@ func RegisterRoutes(e *echo.Echo) {
 		email,_ := DesDecrypt(EnKey.Value,DesKey)
 		path := ctx.FormValue("path")
 		filename := ctx.FormValue("filename")
-		filesize,_ := strconv.Atoi(ctx.FormValue("filesize"))
+		filesize,_ := strconv.ParseInt(ctx.FormValue("filesize"),10,64)
 		tmp := OnedriveAddReturn{}
 		tmp.StoreID,tmp.Address = GetOneDriveAdd(email,path,filename,filesize)
 		if tmp.StoreID != -1 {
@@ -176,6 +177,7 @@ func RegisterRoutes(e *echo.Echo) {
 			StoreID:   tmp.StoreID,
 			ItemID:    tmp.ItemID,
 		})
+		UserUpdate(&User{UserID: user_.UserID,Used: user_.Used+tmp.Size})
 		return ctx.JSON(200,"succeed")
 	})
 
@@ -348,7 +350,7 @@ func RegisterRoutes(e *echo.Echo) {
 			tmp.GroupID = id
 		}
 		if volume != "" {
-			vol,_ := strconv.Atoi(volume)
+			vol,_ := strconv.ParseInt(volume,10,64)
 			tmp.Volume = vol
 		}
 		if pw != "" {
@@ -421,7 +423,7 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		tmp.GroupID,_ = strconv.Atoi(groupid)
 		if volume != "" {
-			vol,_ := strconv.Atoi(volume)
+			vol,_ := strconv.ParseInt(volume,10,64)
 			tmp.Volume = vol
 		}
 		if storeid != "" {

@@ -10,8 +10,8 @@ type User struct {
 	Email string `gorm:"unique"`
 	Password string
 	GroupID int
-	Volume int
-	Used int
+	Volume int64
+	Used int64
 	Time int `gorm:"autoCreateTime"`
 }
 
@@ -24,7 +24,7 @@ type Data struct {
 	Type string
 	Time int `gorm:"autoCreateTime;autoUpdateTime"`
 	Path string
-	Size int
+	Size int64
 	StoreID int
 	ItemID string
 }
@@ -32,7 +32,7 @@ type Data struct {
 type UserGroup struct {
 	GroupID int `gorm:"primaryKey;autoIncrement"`
 	Name string `gorm:"unique"`
-	Volume int
+	Volume int64
 	StoreID string
 }
 
@@ -42,21 +42,23 @@ type Store struct {
 	Name string
 	Type string
 	Path string
-	Volume int
+	Volume int64
 	RefreshToken string
 	ClientSecret string
 	ClientID string
 	Time int `gorm:"autoCreateTime;autoUpdateTime"`
-	Used int
+	Used int64
 }
 
 //下载任务模型
 type Task struct {
-	Gid string `gorm:"primaryKey"`
+	TaskID int `gorm:"primaryKey;autoIncrement"`
+	Gid string
 	UserID int
 	Path string
 	Time int `gorm:"autoCreateTime;autoUpdateTime"`
 	TmpPath string
+	Type string
 	Status string
 }
 
@@ -68,7 +70,7 @@ type PathData struct {
 	DataType string
 	DataTime int
 	DataPath string
-	DataSize int
+	DataSize int64
 }
 type OneDriveInfo struct {
 	Token string
@@ -77,7 +79,7 @@ type OneDriveInfo struct {
 type StoreModel struct {
 	Name string `json:"name" form:"name" query:"name"`
 	Type string `json:"type" form:"type" query:"type"`
-	Volume int `json:"volume" form:"volume" query:"volume"`
+	Volume int64 `json:"volume" form:"volume" query:"volume"`
 	Path string `json:"path" form:"path" query:"path"`
 	RefreshToken string `json:"refresh_token" form:"refresh_token" query:"refresh_token"`
 	ClientSecret string `json:"client_secret" form:"client_secret" query:"client_secret"`
@@ -90,7 +92,7 @@ type OnedriveDatas struct {
 	Name string `json:"Name" form:"Name" query:"Name"`
 	Type string `json:"Type" form:"Type" query:"Type"`
 	Path string `json:"Path" form:"Path" query:"Path"`
-	Size int `json:"Size" form:"Size" query:"Size"`
+	Size int64 `json:"Size" form:"Size" query:"Size"`
 	StoreID int `json:"StoreID" form:"StoreID" query:"StoreID"`
 	ItemID string `json:"ItemID" form:"ItemID" query:"ItemID"`
 }
@@ -107,8 +109,8 @@ type OnedriveAddReturn struct {
 	StoreID int
 }
 type UserInfo struct {
-	Volume int
-	Used int
+	Volume int64
+	Used int64
 	GroupName string
 	GroupID int
 	RegisterTime int
@@ -117,11 +119,11 @@ type useradd struct {
 	Email string `json:"Email" form:"Email" query:"Email"`
 	Password string `json:"pw" form:"pw" query:"pw"`
 	GroupID int `json:"GroupID" form:"GroupID" query:"GroupID"`
-	Volume int `json:"Volume" form:"Volume" query:"Volume"`
+	Volume int64 `json:"Volume" form:"Volume" query:"Volume"`
 }
 type usergroupadd struct {
 	Name string `json:"Name" form:"Name" query:"Name"`
-	Volume int  `json:"Volume" form:"Volume" query:"Volume"`
+	Volume int64  `json:"Volume" form:"Volume" query:"Volume"`
 	StoreID string `json:"StoreID" form:"StoreID" query:"StoreID"`
 }
 type aria2config struct {

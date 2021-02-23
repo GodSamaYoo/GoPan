@@ -118,7 +118,7 @@ func RefreshAllToken()  {
 }
 
 //获得上传地址
-func GetOneDriveAdd(email, path, filename string,Need int) (int,string) {
+func GetOneDriveAdd(email, path, filename string,Need int64) (int,string) {
 	Need = Need/1024 + 1
 	a := UserQuery(&User{
 		Email: email,
@@ -305,7 +305,7 @@ func GetThumbnail(itemid string,onedriveid int) string {
 }
 
 //本地文件上传  长度,邮箱,绝对路径（带文件名）,网盘路径,文件总体相对路径
-func FileUpOneDrive(length int,email ,path1,path2,path3 string)  {
+func FileUpOneDrive(length int64,email ,path1,path2,path3 string)  {
 	path_ := path.Dir(path1[len(path3):])
 	if path2 == "/" {
 		if path_ == "." {
@@ -351,16 +351,17 @@ func FileUpOneDrive(length int,email ,path1,path2,path3 string)  {
 		Name:    path.Base(path1),
 		Type:    "file",
 		Path:    path_,
-		Size:    length/1024,
+		Size:    length/1024+1,
 		StoreID: c,
 		ItemID:  itemid,
 	})
+	UserUpdate(&User{UserID: a.UserID,Used: a.Used+length/1024+1})
 }
-func Aria2OneDriveUp(filepath string,size int,url string,storeid int) string {
+func Aria2OneDriveUp(filepath string,size int64,url string,storeid int) string {
 	f,_ := os.Open(filepath)
 	defer f.Close()
 	buf := make([]byte,1024 * 320 * 80)
-	n := 0
+	n := int64(0)
 	var status string
 	for {
 		num,err := f.Read(buf)
@@ -372,11 +373,11 @@ func Aria2OneDriveUp(filepath string,size int,url string,storeid int) string {
 			buf_ := make([]byte,num)
 			buf_ = buf [:num]
 			reader := bytes.NewReader(buf_)
-			status = OneDriveUp(url,reader,(n-1)*1024 * 320 * 80,(n-1)*1024 * 320 * 80+num-1,size,storeid)
+			status = OneDriveUp(url,reader,(n-1)*1024 * 320 * 80,(n-1)*1024 * 320 * 80+int64(num)-1,size,storeid)
 			if status == "-1" {
 				i := 0
 				for {
-					status = OneDriveUp(url,reader,(n-1)*1024 * 320 * 80,(n-1)*1024 * 320 * 80+num-1,size,storeid)
+					status = OneDriveUp(url,reader,(n-1)*1024 * 320 * 80,(n-1)*1024 * 320 * 80+int64(num)-1,size,storeid)
 					if status != "-1" || i==5 {
 						break
 					}
@@ -400,7 +401,7 @@ func Aria2OneDriveUp(filepath string,size int,url string,storeid int) string {
 	}
 	return gjson.Get(status,"id").Str
 }
-func OneDriveUp(url string,chunk io.Reader,begin,end,filesize int,storeid int) string {
+func OneDriveUp(url string,chunk io.Reader,begin,end,filesize int64,storeid int) string {
 	method := "PUT"
 
 	client := &http.Client {
@@ -411,9 +412,9 @@ func OneDriveUp(url string,chunk io.Reader,begin,end,filesize int,storeid int) s
 		fmt.Println(err)
 		return "-1"
 	}
-	begin_ := strconv.Itoa(begin)
-	end_ := strconv.Itoa(end)
-	filesize_ := strconv.Itoa(filesize)
+	begin_ := strconv.FormatInt(begin,10)
+	end_ := strconv.FormatInt(end,10)
+	filesize_ := strconv.FormatInt(filesize,10)
 	req.Header.Add("Content-Range", "bytes "+begin_+"-"+end_+"/"+filesize_)
 	req.Header.Add("Content-Type", "application/octet-stream")
 	req.Header.Add("Authorization", "Bearer "+OneDriveTokens[storeid].Token)
