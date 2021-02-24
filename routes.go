@@ -61,6 +61,13 @@ func RegisterRoutes(e *echo.Echo) {
 			DataDelete(&Data{
 				FileID: id,
 			})
+			x:=StoreQuery(&Store{
+				ID: a.StoreID,
+			})
+			StoreUpdate(&Store{
+				ID:   x.ID,
+				Used: x.Used - a.Size,
+			})
 			return ctx.JSON(200,"succeed")
 		}
 		return ctx.JSON(200,"failed")
@@ -83,7 +90,7 @@ func RegisterRoutes(e *echo.Echo) {
 		if email != b.Email {
 			return ctx.JSON(200,"failed")
 		}
-		DirDelete(id)
+		go DirDelete(id)
 		return ctx.JSON(200,"succeed")
 	})
 
@@ -178,6 +185,13 @@ func RegisterRoutes(e *echo.Echo) {
 			ItemID:    tmp.ItemID,
 		})
 		UserUpdate(&User{UserID: user_.UserID,Used: user_.Used+tmp.Size})
+		x:=StoreQuery(&Store{
+			ID: tmp.StoreID,
+		})
+		StoreUpdate(&Store{
+			ID:   tmp.StoreID,
+			Used: x.Used + tmp.Size,
+		})
 		return ctx.JSON(200,"succeed")
 	})
 
@@ -469,7 +483,7 @@ func RegisterRoutes(e *echo.Echo) {
 		ModifyIni("aria2","enable",tmp.Status)
 		ModifyIni("aria2","port",tmp.Port)
 		ModifyIni("aria2","token",tmp.Secret)
-		ModifyIni("aria2","tmpdownpath",tmp.TmpDownPath)
+		ModifyIni("TmpFile","path",tmp.TmpDownPath)
 		ModifyIni("aria2","time",tmp.Time)
 		if aria2client != nil {
 			_ = aria2client.Close()
@@ -492,7 +506,7 @@ func RegisterRoutes(e *echo.Echo) {
 			Status:      ReadIni("aria2","enable"),
 			Port:        ReadIni("aria2","port"),
 			Secret:      ReadIni("aria2","token"),
-			TmpDownPath: ReadIni("aria2","tmpdownpath"),
+			TmpDownPath: ReadIni("TmpFile","path"),
 			Time:        ReadIni("aria2","time"),
 		}
 		return ctx.JSON(200,tmp)

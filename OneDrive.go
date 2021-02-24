@@ -6,6 +6,7 @@ import (
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"path"
@@ -351,11 +352,18 @@ func FileUpOneDrive(length int64,email ,path1,path2,path3 string)  {
 		Name:    path.Base(path1),
 		Type:    "file",
 		Path:    path_,
-		Size:    length/1024+1,
+		Size:    int64(math.Floor(float64(length)/1024 + 0.5)),
 		StoreID: c,
 		ItemID:  itemid,
 	})
-	UserUpdate(&User{UserID: a.UserID,Used: a.Used+length/1024+1})
+	UserUpdate(&User{UserID: a.UserID,Used: a.Used+int64(math.Floor(float64(length)/1024 + 0.5))})
+	x:=StoreQuery(&Store{
+		ID: c,
+	})
+	StoreUpdate(&Store{
+		ID:   x.ID,
+		Used: x.Used + int64(math.Floor(float64(length)/1024 + 0.5)),
+	})
 }
 func Aria2OneDriveUp(filepath string,size int64,url string,storeid int) string {
 	f,_ := os.Open(filepath)

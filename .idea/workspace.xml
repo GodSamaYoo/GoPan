@@ -3,16 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="5b540c39-2808-4854-8784-ca8e6f7115cf" name="默认的" comment="fixed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Archiver.go" beforeDir="false" afterPath="$PROJECT_DIR$/Archiver.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OneDrive.go" beforeDir="false" afterPath="$PROJECT_DIR$/OneDrive.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aria2.go" beforeDir="false" afterPath="$PROJECT_DIR$/aria2.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/global.go" beforeDir="false" afterPath="$PROJECT_DIR$/global.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ini.go" beforeDir="false" afterPath="$PROJECT_DIR$/ini.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/methods.go" beforeDir="false" afterPath="$PROJECT_DIR$/methods.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/routes.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/struct.go" beforeDir="false" afterPath="$PROJECT_DIR$/struct.go" afterDir="false" />
     </list>
     <list id="7d5677bc-a76f-4355-a7af-fd35c432e09c" name="Revert &quot;fixed&quot;" comment="Revert &quot;fixed&quot;&#10;&#10;This reverts commit 2355976e" />
     <option name="SHOW_DIALOG" value="false" />

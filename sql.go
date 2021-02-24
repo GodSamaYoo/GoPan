@@ -250,6 +250,13 @@ func StoreAdd(tmp *Store) bool {
 	}
 	return false
 }
+func StoreUpdate(tmp *Store) bool {
+	num := db.Model(&Store{}).Where("id = ?",tmp.ID).Updates(tmp).RowsAffected
+	if num == 1 {
+		return true
+	}
+	return false
+}
 
 
 //重命名文件 文件夹
@@ -314,6 +321,13 @@ func DirDelete(fileid string)  {
 			totalsize += v.Size
 			DataDelete(&Data{
 				FileID: v.FileID,
+			})
+			x:=StoreQuery(&Store{
+				ID: v.StoreID,
+			})
+			StoreUpdate(&Store{
+				ID:   x.ID,
+				Used: x.Used - v.Size,
 			})
 		}
 	}

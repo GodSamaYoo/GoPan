@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zyxar/argo/rpc"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"path"
@@ -20,15 +21,6 @@ func aria2begin() rpc.Client {
 		return nil
 	}
 	var err error
-	if ReadIni("aria2","tmpdownpath") != "" {
-		aria2path = ReadIni("aria2","tmpdownpath")
-	} else {
-		aria2path,err = os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-		}
-		aria2path += "\\tmp"
-	}
 	aria2token := ReadIni("aria2","token")
 	port := ReadIni("aria2","port")
 	aria2url := "http://127.0.0.1:"+port+"/jsonrpc"
@@ -103,11 +95,18 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event)   {
 					Name:    path.Base(vv.Path),
 					Type:    "file",
 					Path:    path_,
-					Size:    length/1024+1,
+					Size:    int64(math.Floor(float64(length)/1024 + 0.5)),
 					StoreID: c,
 					ItemID:  itemid,
 				})
-				UserUpdate(&User{UserID: b.UserID,Used: b.Used+length/1024+1})
+				UserUpdate(&User{UserID: b.UserID,Used: b.Used+int64(math.Floor(float64(length)/1024 + 0.5))})
+				x:=StoreQuery(&Store{
+					ID: c,
+				})
+				StoreUpdate(&Store{
+					ID:   x.ID,
+					Used: x.Used + int64(math.Floor(float64(length)/1024 + 0.5)),
+				})
 				if path_ != "/" {
 					CreateDir(b.Email,path.Dir(path_),path.Base(path_))
 				}
@@ -129,7 +128,7 @@ func aria2download(url []string,path string,userid int) []string {
 		var url_ string
 		var gid string
 		var err error
-		tmp := aria2path + "\\" + md5_(time.Now().String())
+		tmp := TmpPath + "\\" + md5_(time.Now().String())
 		if len(v) == 40 && !strings.Contains(v, ".") {
 			url_ = "magnet:?xt=urn:btih:" + v
 			gid, err = aria2client.AddURI([]string{url_},rpc.Option{"dir":tmp})
