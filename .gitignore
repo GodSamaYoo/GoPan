@@ -6,3 +6,4 @@ public/
 *.ini
 tmp/
 TmpFile/
+rice-box.go

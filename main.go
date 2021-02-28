@@ -13,8 +13,9 @@ import (
 
 func main() {
 	e := echo.New()
-	e.AutoTLSManager.Cache = autocert.DirCache(".cache")
-	e.Pre(middleware.HTTPSRedirect())
+	e.AutoTLSManager.HostPolicy = autocert.HostWhitelist("hello.godsama.cc")
+	e.AutoTLSManager.Cache = autocert.DirCache("hello")
+	//e.Pre(middleware.HTTPSRedirect())
 	CheckIni()
 	CheckSqlite()
 	RegisterRoutes(e)
@@ -33,6 +34,6 @@ func main() {
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
-	e.Logger.Fatal(e.Start(":" + ServicePort))
+	go e.Logger.Fatal(e.Start(":" + ServicePort))
 	e.StartAutoTLS(":443")
 }
