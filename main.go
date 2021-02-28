@@ -35,6 +35,6 @@ func main() {
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
 	e.Pre(middleware.HTTPSRedirect())
-	go e.Logger.Fatal(e.Start(":80"))
+	go func() {e.Logger.Fatal(e.Start(":80"))}()
 	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
 }
