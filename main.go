@@ -25,9 +25,10 @@ func main() {
 	c := cron.New()
 	_, _ = c.AddFunc("*/50 * * * *", RefreshAllToken)
 	c.Start()
-	e.Pre(middleware.HTTPSRedirect())
+	//e.Pre(middleware.HTTPSRedirect())
 	assetHandler := http.FileServer(rice.MustFindBox("html").HTTPBox())
 	e.GET("/*",echo.WrapHandler(assetHandler))
+
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
