@@ -1,11 +1,9 @@
 package main
 
 import (
-	rice "github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/robfig/cron/v3"
-	"net/http"
 	"strconv"
 )
 
@@ -25,15 +23,18 @@ func main() {
 	c := cron.New()
 	_, _ = c.AddFunc("*/50 * * * *", RefreshAllToken)
 	c.Start()
-	//e.Pre(middleware.HTTPSRedirect())
-	assetHandler := http.FileServer(rice.MustFindBox("html").HTTPBox())
-	e.GET("/*",echo.WrapHandler(assetHandler))
-
+	//assetHandler := http.FileServer(rice.MustFindBox("html").HTTPBox())
+	//e.GET("/*",echo.WrapHandler(assetHandler))
+	/*e.Static("/", "html")*/
+	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "html",
+		Browse: true,
+		HTML5: true,
+	}))
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
-	go func() {
-		e.Logger.Fatal(e.Start(":80"))
-	}()
+	e.Pre(middleware.HTTPSRedirect())
+	go e.Logger.Fatal(e.Start(":80"))
 	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
 }
