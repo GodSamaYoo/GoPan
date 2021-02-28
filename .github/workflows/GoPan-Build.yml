@@ -29,42 +29,42 @@ jobs:
         
     - name: Build-liunx_amd64
       run: |
-        CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o GodCloud_liunx_amd64
-        strip -s GodCloud_liunx_amd64
+        CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o GoPan_liunx_amd64
+        strip -s GoPan_liunx_amd64
     - name: Build-liunx_arm64
       run: |
-        GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ go build -o GodCloud_liunx_arm64
-        aarch64-linux-gnu-strip -s GodCloud_liunx_arm64
+        GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ go build -o GoPan_liunx_arm64
+        aarch64-linux-gnu-strip -s GoPan_liunx_arm64
         
     - name: Build-liunx_arm
       run: |
-        GOOS=linux GOARCH=arm CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc  CXX=arm-linux-gnueabihf-g++ go build -o GodCloud_liunx_arm 
-        arm-linux-gnueabihf-strip -s GodCloud_liunx_arm
+        GOOS=linux GOARCH=arm CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc  CXX=arm-linux-gnueabihf-g++ go build -o GoPan_liunx_arm 
+        arm-linux-gnueabihf-strip -s GoPan_liunx_arm
     - name: Build-windows_amd64
       run: |
-        GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ go build -o GodCloud_windows_amd64.exe
-        x86_64-w64-mingw32-strip -s GodCloud_windows_amd64.exe
+        GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ go build -o GoPan_windows_amd64.exe
+        x86_64-w64-mingw32-strip -s GoPan_windows_amd64.exe
         
     - name: Upload binary files (liunx_amd64)
       uses: actions/upload-artifact@v2
       with:
         name: Build-liunx_amd64
-        path: GodCloud_liunx_amd64
+        path: GoPan_liunx_amd64
 
     - name: Upload binary files (liunx_arm64)
       uses: actions/upload-artifact@v2
       with:
         name: Build-liunx_arm64
-        path: GodCloud_liunx_arm64
+        path: GoPan_liunx_arm64
         
     - name: Upload binary files (liunx_arm)
       uses: actions/upload-artifact@v2
       with:
         name: Build-liunx_arm
-        path: GodCloud_liunx_arm
+        path: GoPan_liunx_arm
 
     - name: Upload binary files (windows_amd64)
       uses: actions/upload-artifact@v2
       with:
         name: Build-windows_amd64
-        path: GodCloud_windows_amd64.exe
+        path: GoPan_windows_amd64.exe
