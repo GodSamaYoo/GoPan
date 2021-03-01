@@ -58,15 +58,15 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		if DeleteOneDriveFile(a.ItemID,a.StoreID) {
 			UserUpdate(&User{UserID: b.UserID,Used: b.Used-a.Size})
-			DataDelete(&Data{
-				FileID: id,
-			})
 			x:=StoreQuery(&Store{
 				ID: a.StoreID,
 			})
 			StoreUpdate(&Store{
 				ID:   x.ID,
 				Used: x.Used - a.Size,
+			})
+			DataDelete(&Data{
+				FileID: id,
 			})
 			return ctx.JSON(200,"succeed")
 		}

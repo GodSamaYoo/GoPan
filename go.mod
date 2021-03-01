@@ -4,6 +4,8 @@ go 1.15
 
 require (
 	github.com/GeertJohan/go.rice v1.0.2
+	github.com/elazarl/go-bindata-assetfs v1.0.1
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/labstack/echo/v4 v4.2.0
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
 	github.com/mholt/archiver/v3 v3.5.0

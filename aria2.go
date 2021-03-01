@@ -128,7 +128,7 @@ func aria2download(url []string,path string,userid int) []string {
 		var url_ string
 		var gid string
 		var err error
-		tmp := TmpPath + "\\" + md5_(time.Now().String())
+		tmp := TmpPath + "/" + md5_(time.Now().String())
 		if len(v) == 40 && !strings.Contains(v, ".") {
 			url_ = "magnet:?xt=urn:btih:" + v
 			gid, err = aria2client.AddURI([]string{url_},rpc.Option{"dir":tmp})
