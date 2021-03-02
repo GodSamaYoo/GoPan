@@ -15,7 +15,7 @@ func main() {
 	RegisterRoutes(e)
 	aria2client = aria2begin()
 
-	//ServicePort := ReadIni("Service", "port")
+	ServicePort := ReadIni("Service", "port")
 	DesKey = ReadIni("Des","key")
 	TmpPath = ReadIni("TmpFile", "path")
 	TmpVolume,_ = strconv.ParseInt(ReadIni("TmpFile", "volume"),10,64)
@@ -33,6 +33,6 @@ func main() {
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
 	//e.Pre(middleware.HTTPSRedirect())
-	go func() {e.Logger.Fatal(e.Start(":80"))}()
-	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
+	e.Logger.Fatal(e.Start(":"+ServicePort))
+	//e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
 }

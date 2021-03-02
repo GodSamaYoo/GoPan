@@ -52,7 +52,7 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event)   {
 			})
 			dir_ := strings.ReplaceAll(infos.Dir,`\`,`/`)
 			for _,vv := range infos.Files {
-				length,_ := strconv.ParseInt(ReadIni("TmpFile", "volume"),10,64)
+				length,_ := strconv.ParseInt(vv.Length,10,64)
 				c,d := GetOneDriveAdd(b.Email,a.Path,path.Base(vv.Path),length)
 				if d == "" {
 					return
