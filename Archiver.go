@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/mholt/archiver/v3"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -44,8 +43,15 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 	url := GetOneDriveDownload(a.ItemID,a.StoreID)
 	file, _ := http.Get(url)
 	defer file.Body.Close()
-	files,_ := ioutil.ReadAll(file.Body)
-	_ = ioutil.WriteFile(path_+"/"+a.Name, files, 0644)
+	f, _ := os.Create(path_+"/"+a.Name)
+	buf := make([]byte, 10485760)
+	for {
+		n_, err := file.Body.Read(buf)
+		if err != nil {
+			break
+		}
+		f.Write(buf[:n_])
+	}
 	if tmp.PassWord == "" {
 		err := archiver.Unarchive(path_+"/"+a.Name, path_+"/unarchive")
 		if err != nil {
