@@ -313,7 +313,7 @@ func FileUpOneDrive(length int64,email ,path1,path2,path3 string)  {
 			path_ = "/"
 		}
 	} else {
-		if path_ == "." {
+		if path_ == "."|| path_ == "/"{
 			path_ = path2
 		} else {
 			path_ = path2+path_

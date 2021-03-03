@@ -104,6 +104,7 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 
 func PathFileUpload(path_ string,email string,saveph string)  {
 	i := 0
+	p := NewPool(6)
 	_ = filepath.Walk(path_, func(paths string, info os.FileInfo, err error) error {
 		if i != 0 {
 			lens := len(path_)
@@ -128,10 +129,18 @@ func PathFileUpload(path_ string,email string,saveph string)  {
 				ppp = strings.ReplaceAll(ppp,`\`,`/`)
 				pppp,_ := filepath.Abs(path_)
 				pppp = strings.ReplaceAll(pppp,`\`,`/`)
-				FileUpOneDrive(info.Size(),email,ppp,saveph,pppp)
+				pp:=Tasks{
+					length: info.Size(),
+					email:  email,
+					path1:  ppp,
+					path2:  saveph,
+					path3:  pppp,
+				}
+				p.JobsChannel <- &pp
 			}
 		}
 		i++
 		return nil
 	})
+	p.Run()
 }
