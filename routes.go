@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -584,6 +585,41 @@ func RegisterRoutes(e *echo.Echo) {
 		email,_ := DesDecrypt(enkey.Value,DesKey)
 		go UnArchiver(tmp,email)
 		return ctx.JSON(200, "succeed")
+	})
+
+	//批量删除
+	e.DELETE("/api/allfile", func(ctx echo.Context) error {
+		enkey,err := ctx.Cookie("GODKEY")
+		if err != nil {
+			return err
+		}
+		email,_ := DesDecrypt(enkey.Value,DesKey)
+		ids := ctx.FormValue("ids")
+		fileids := strings.Split(ids,",")
+		b := UserQuery(&User{
+			Email: email,
+		})
+		userdelvol := int64(0)
+		for _,v := range fileids {
+			a := DataQuery(&Data{
+				FileID: v,
+			})
+			if DeleteOneDriveFile(a.ItemID,a.StoreID) {
+				userdelvol += a.Size
+				x:=StoreQuery(&Store{
+					ID: a.StoreID,
+				})
+				StoreUpdate(&Store{
+					ID:   x.ID,
+					Used: x.Used - a.Size,
+				})
+				DataDelete(&Data{
+					FileID: v,
+				})
+			}
+		}
+		UserUpdate(&User{UserID: b.UserID,Used: b.Used-userdelvol})
+		return ctx.JSON(200,"succeed")
 	})
 
 }
