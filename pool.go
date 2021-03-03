@@ -10,14 +10,14 @@ func (t *Tasks)Execute()  {
 }
 type Pool struct {
 	WorkNum int
-	EnterChannel chan *Tasks
 	JobsChannel chan *Tasks
+	process int
 }
 
 func (p *Pool)worker()  {
-	for {
-		a := <-p.JobsChannel
+	for a := range p.JobsChannel{
 		a.Execute()
+		p.process++
 	}
 }
 
@@ -25,17 +25,12 @@ func (p *Pool)Run()  {
 	for i:=0;i<p.WorkNum;i++ {
 		go p.worker()
 	}
-	for task := range p.EnterChannel {
-		p.JobsChannel <- task
-	}
-	close(p.JobsChannel)
-	close(p.EnterChannel)
 }
 func NewPool(num int) *Pool {
 	p := Pool{
 		WorkNum:     num,
-		EnterChannel: make(chan *Tasks,500),
 		JobsChannel: make(chan *Tasks),
+		process: 0,
 	}
 	return &p
 }

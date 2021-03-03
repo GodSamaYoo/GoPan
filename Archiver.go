@@ -20,7 +20,6 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 	n :=Task{
 		UserID:  t.UserID,
 		Path:    tmp.NewPath,
-		TmpPath: "",
 		Type:    "解压",
 		Status:  "正在解压",
 	}
@@ -47,10 +46,11 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 	buf := make([]byte, 10485760)
 	for {
 		n_, err := file.Body.Read(buf)
+		f.Write(buf[:n_])
 		if err != nil {
 			break
 		}
-		f.Write(buf[:n_])
+
 	}
 	if tmp.PassWord == "" {
 		err := archiver.Unarchive(path_+"/"+a.Name, path_+"/unarchive")
@@ -91,20 +91,28 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 		TmpPath: u,
 		Status:  "正在上传",
 	})
-	PathFileUpload(path_+"/unarchive",email,tmp.NewPath)
-	TaskUpdate(&Task{
-		TmpPath: u,
-		Status:  "解压成功",
-	})
-	_ = os.RemoveAll(path_)
+	p := NewPool(6)
+	k := PathFileUpload(path_+"/unarchive",email,tmp.NewPath,p)
+	for {
+		if k == p.process {
+			TaskUpdate(&Task{
+				TmpPath: u,
+				Status:  "解压成功",
+			})
+			_ = os.RemoveAll(path_)
+			break
+		}
+		time.Sleep(time.Second*1)
+	}
 	return
 }
 
 //目录文件上传
 
-func PathFileUpload(path_ string,email string,saveph string)  {
+func PathFileUpload(path_ string,email string,saveph string,p *Pool) int {
 	i := 0
-	p := NewPool(6)
+	p.Run()
+	k := 0
 	_ = filepath.Walk(path_, func(paths string, info os.FileInfo, err error) error {
 		if i != 0 {
 			lens := len(path_)
@@ -137,10 +145,12 @@ func PathFileUpload(path_ string,email string,saveph string)  {
 					path3:  pppp,
 				}
 				p.JobsChannel <- &pp
+				k++
 			}
 		}
 		i++
 		return nil
 	})
-	p.Run()
+	close(p.JobsChannel)
+	return k
 }

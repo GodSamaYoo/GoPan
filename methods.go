@@ -120,7 +120,7 @@ func DirSize(path string) (int64,error) {
 		if !info.IsDir() {
 			size += info.Size()
 		}
-		return err
+		return nil
 	})
 	return size/1024+1,err
 }

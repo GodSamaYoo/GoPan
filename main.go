@@ -14,7 +14,6 @@ func main() {
 	CheckSqlite()
 	RegisterRoutes(e)
 	aria2client = aria2begin()
-
 	ServicePort := ReadIni("Service", "port")
 	DesKey = ReadIni("Des","key")
 	TmpPath = ReadIni("TmpFile", "path")
@@ -32,7 +31,7 @@ func main() {
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
-	e.Pre(middleware.HTTPSRedirect())
+	//e.Pre(middleware.HTTPSRedirect())
 	go func() {
 		e.Logger.Fatal(e.Start(":"+ServicePort))
 	}()
