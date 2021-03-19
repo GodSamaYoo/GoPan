@@ -30,10 +30,10 @@ func main() {
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
-	/*e.Pre(middleware.HTTPSRedirect())
+	e.Pre(middleware.HTTPSRedirect())
 	go func() {
-		e.Logger.Fatal(e.Start(":"+ServicePort))
+		e.Logger.Fatal(e.Start(":" + ServicePort))
 	}()
-	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))*/
-	e.Logger.Fatal(e.Start(":" + ServicePort))
+	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
+	//e.Logger.Fatal(e.Start(":" + ServicePort))
 }
