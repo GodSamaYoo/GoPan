@@ -12,37 +12,37 @@ import (
 )
 
 //解压
-func UnArchiver(tmp *UnArchiveFile,email string)  {
+func UnArchiver(tmp *UnArchiveFile, email string) {
 	t := UserQuery(&User{
 		Email: email,
 	})
 	a := DataQuery(&Data{FileID: tmp.FileID})
-	n :=Task{
-		UserID:  t.UserID,
-		Path:    tmp.NewPath,
-		Type:    "解压",
-		Status:  "正在解压",
+	n := Task{
+		UserID: t.UserID,
+		Path:   tmp.NewPath,
+		Type:   "解压",
+		Status: "正在解压",
 	}
-	if !IsUserVolume(email,a.Size * 3 / 2 + 1) {
+	if !IsUserVolume(email, a.Size*3/2+1) {
 		n.Status = "用户容量不足"
 		TaskAdd(&n)
 		return
 	}
-	if !IsLocalVolume (a.Size * 3 / 2 + 1) {
+	if !IsLocalVolume(a.Size*3/2 + 1) {
 		n.Status = "服务器本地容量不足"
 		TaskAdd(&n)
 		return
 	}
-	path_ := md5_(time.Now().String()+tmp.FileID)
+	path_ := md5_(time.Now().String() + tmp.FileID)
 	u := path_
 	n.TmpPath = path_
 	TaskAdd(&n)
-	path_ = TmpPath +"/"+path_
-	_ = os.Mkdir(path_,0777)
-	url := GetOneDriveDownload(a.ItemID,a.StoreID)
+	path_ = TmpPath + "/" + path_
+	_ = os.Mkdir(path_, 0777)
+	url := GetOneDriveDownload(a.ItemID, a.StoreID)
 	file, _ := http.Get(url)
 	defer file.Body.Close()
-	f, _ := os.Create(path_+"/"+a.Name)
+	f, _ := os.Create(path_ + "/" + a.Name)
 	buf := make([]byte, 10485760)
 	for {
 		n_, err := file.Body.Read(buf)
@@ -63,7 +63,7 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 			})
 			return
 		}
-	} else if tmp.PassWord != "" || strings.ToLower(path.Ext(a.Name))  == "rar"{
+	} else if tmp.PassWord != "" || strings.ToLower(path.Ext(a.Name)) == "rar" {
 		b := archiver.NewRar()
 		b.Password = tmp.PassWord
 		err := b.Unarchive(path_+"/"+a.Name, path_+"/unarchive")
@@ -91,8 +91,8 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 		TmpPath: u,
 		Status:  "正在上传",
 	})
-	p := NewPool(6)
-	k := PathFileUpload(path_+"/unarchive",email,tmp.NewPath,p)
+	p := NewPool(8)
+	k := PathFileUpload(path_+"/unarchive", email, tmp.NewPath, p)
 	for {
 		if k == p.process {
 			TaskUpdate(&Task{
@@ -102,14 +102,14 @@ func UnArchiver(tmp *UnArchiveFile,email string)  {
 			_ = os.RemoveAll(path_)
 			break
 		}
-		time.Sleep(time.Second*1)
+		time.Sleep(time.Second * 1)
 	}
 	return
 }
 
 //目录文件上传
 
-func PathFileUpload(path_ string,email string,saveph string,p *Pool) int {
+func PathFileUpload(path_ string, email string, saveph string, p *Pool) int {
 	i := 0
 	p.Run()
 	k := 0
@@ -131,13 +131,13 @@ func PathFileUpload(path_ string,email string,saveph string,p *Pool) int {
 						pathh += "/" + v
 					}
 				}
-				CreateDir(email,pathh,info.Name())
-			}else {
-				ppp,_ := filepath.Abs(paths)
-				ppp = strings.ReplaceAll(ppp,`\`,`/`)
-				pppp,_ := filepath.Abs(path_)
-				pppp = strings.ReplaceAll(pppp,`\`,`/`)
-				pp:=Tasks{
+				CreateDir(email, pathh, info.Name())
+			} else {
+				ppp, _ := filepath.Abs(paths)
+				ppp = strings.ReplaceAll(ppp, `\`, `/`)
+				pppp, _ := filepath.Abs(path_)
+				pppp = strings.ReplaceAll(pppp, `\`, `/`)
+				pp := Tasks{
 					length: info.Size(),
 					email:  email,
 					path1:  ppp,

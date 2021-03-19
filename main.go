@@ -7,7 +7,6 @@ import (
 	"strconv"
 )
 
-
 func main() {
 	e := echo.New()
 	CheckIni()
@@ -15,9 +14,9 @@ func main() {
 	RegisterRoutes(e)
 	aria2client = aria2begin()
 	ServicePort := ReadIni("Service", "port")
-	DesKey = ReadIni("Des","key")
+	DesKey = ReadIni("Des", "key")
 	TmpPath = ReadIni("TmpFile", "path")
-	TmpVolume,_ = strconv.ParseInt(ReadIni("TmpFile", "volume"),10,64)
+	TmpVolume, _ = strconv.ParseInt(ReadIni("TmpFile", "volume"), 10, 64)
 	OneDriveTokens = make(map[int]OneDriveInfo)
 	go RefreshAllToken()
 	c := cron.New()
@@ -26,14 +25,15 @@ func main() {
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root:   "html",
 		Browse: true,
-		HTML5: true,
+		HTML5:  true,
 	}))
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
-	e.Pre(middleware.HTTPSRedirect())
+	/*e.Pre(middleware.HTTPSRedirect())
 	go func() {
 		e.Logger.Fatal(e.Start(":"+ServicePort))
 	}()
-	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
+	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))*/
+	e.Logger.Fatal(e.Start(":" + ServicePort))
 }

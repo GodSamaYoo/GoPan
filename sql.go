@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"os"
+	path_ "path"
 )
 
 func CheckSqlite() {
@@ -37,7 +38,7 @@ func CheckSqlite() {
 			StoreID: "1",
 		})
 		fmt.Println("用户名：admin@godcloud.com\n密码：123456")
-	}else {
+	} else {
 		ConnectSqlite()
 	}
 }
@@ -83,16 +84,16 @@ func UserAdd(tmp *User) bool {
 	return false
 }
 func UserUpdate(tmp *User) bool {
-	num := db.Model(&User{}).Where("user_id = ?",tmp.UserID).Updates(tmp).RowsAffected
+	num := db.Model(&User{}).Where("user_id = ?", tmp.UserID).Updates(tmp).RowsAffected
 	if num == 1 {
 		return true
 	}
 	return false
 }
 func UserDelete(tmp *User) bool {
-	num := db.Delete(tmp,"email = ?",tmp.Email).RowsAffected
+	num := db.Delete(tmp, "email = ?", tmp.Email).RowsAffected
 	if num == 1 {
-		db.Delete(&Data{},"user_id = ?",tmp.UserID)
+		db.Delete(&Data{}, "user_id = ?", tmp.UserID)
 		return true
 	}
 	return false
@@ -125,19 +126,19 @@ func UserGroupAdd(tmp *UserGroup) bool {
 	return false
 }
 func UserGroupUpdate(tmp *UserGroup) bool {
-	num := db.Model(&UserGroup{}).Where("group_id = ?",tmp.GroupID).Updates(tmp).RowsAffected
+	num := db.Model(&UserGroup{}).Where("group_id = ?", tmp.GroupID).Updates(tmp).RowsAffected
 	if num == 1 {
 		return true
 	}
 	return false
 }
 func UserGroupDelete(tmp *UserGroup) bool {
-	num := db.Delete(tmp,"group_id = ?",tmp.GroupID).RowsAffected
+	num := db.Delete(tmp, "group_id = ?", tmp.GroupID).RowsAffected
 	if num == 1 {
 		a := UsersQuery(&User{
 			GroupID: tmp.GroupID,
 		})
-		for _,v := range a {
+		for _, v := range a {
 			UserDelete(&v)
 		}
 		return true
@@ -160,8 +161,8 @@ func DatasQuery(tmp *Data) []Data {
 }
 func DataAdd(tmp *Data) bool {
 	a := DataQuery(&Data{
-		Path: tmp.Path,
-		Name: tmp.Name,
+		Path:   tmp.Path,
+		Name:   tmp.Name,
 		UserID: tmp.UserID,
 	})
 	if a != nil {
@@ -174,14 +175,12 @@ func DataAdd(tmp *Data) bool {
 	return false
 }
 func DataDelete(tmp *Data) bool {
-	num := db.Delete(tmp,"file_id = ?",tmp.FileID).RowsAffected
+	num := db.Delete(tmp, "file_id = ?", tmp.FileID).RowsAffected
 	if num == 1 {
 		return true
 	}
 	return false
 }
-
-
 
 func TaskQuery(tmp *Task) *Task {
 	tmp_ := new(Task)
@@ -210,14 +209,14 @@ func TaskAdd(tmp *Task) bool {
 	return false
 }
 func TaskUpdate(tmp *Task) bool {
-	num := db.Model(&Task{}).Where("tmp_path = ?",tmp.TmpPath).Updates(tmp).RowsAffected
+	num := db.Model(&Task{}).Where("tmp_path = ?", tmp.TmpPath).Updates(tmp).RowsAffected
 	if num == 1 {
 		return true
 	}
 	return false
 }
 func TaskDelete(tmp *Task) bool {
-	num := db.Delete(tmp,"tmp_path = ?",tmp.TmpPath).RowsAffected
+	num := db.Delete(tmp, "tmp_path = ?", tmp.TmpPath).RowsAffected
 	if num == 1 {
 		return true
 	}
@@ -251,13 +250,12 @@ func StoreAdd(tmp *Store) bool {
 	return false
 }
 func StoreUpdate(tmp *Store) bool {
-	num := db.Model(&Store{}).Where("id = ?",tmp.ID).Updates(tmp).RowsAffected
+	num := db.Model(&Store{}).Where("id = ?", tmp.ID).Updates(tmp).RowsAffected
 	if num == 1 {
 		return true
 	}
 	return false
 }
-
 
 //重命名文件 文件夹
 func UpdateFile(tmp *UpdateType) bool {
@@ -278,11 +276,11 @@ func UpdateFile(tmp *UpdateType) bool {
 			newpath = tmp.Path + "/" + tmp.NewName
 		}
 		db.Model(&Data{}).Where("path LIKE ? AND user_id = ?", oldpath, tmp_.UserID).Update("path", newpath)
-	}else {
+	} else {
 		tmps := DataQuery(&Data{
 			FileID: tmp.FileID,
 		})
-		if !RenameOneDriveFile(tmps.ItemID,tmps.StoreID,tmp.NewName) {
+		if !RenameOneDriveFile(tmps.ItemID, tmps.StoreID, tmp.NewName) {
 			return false
 		}
 	}
@@ -295,7 +293,7 @@ func UpdateFile(tmp *UpdateType) bool {
 //验证是否为管理员
 func IsAdmin(email string) bool {
 	var user User
-	row := db.Where(&User{Email: email,GroupID: 1}).Find(&user).RowsAffected
+	row := db.Where(&User{Email: email, GroupID: 1}).Find(&user).RowsAffected
 	if row == 1 {
 		return true
 	}
@@ -303,7 +301,7 @@ func IsAdmin(email string) bool {
 }
 
 //删除文件夹
-func DirDelete(fileid string)  {
+func DirDelete(fileid string) {
 	a := DataQuery(&Data{
 		FileID: fileid,
 	})
@@ -314,15 +312,25 @@ func DirDelete(fileid string)  {
 	} else {
 		path = a.Path + "/" + a.Name + "%"
 	}
-	db.Where("path LIKE ? AND user_id = ?",path,a.UserID).Find(&tmp_)
-	totalsize := int64(0)
-	for _,v := range tmp_ {
-		if DeleteOneDriveFile(v.ItemID,v.StoreID) {
-			totalsize += v.Size
+	db.Where("path LIKE ? AND user_id = ?", path, a.UserID).Find(&tmp_)
+	totalSize := int64(0)
+	for _, v := range tmp_ {
+		if DeleteOneDriveFile(v.ItemID, v.StoreID) {
+			totalSize += v.Size
+			picture := []string{"jpg", "jpeg", "bmp", "gif", "png", "tif"}
+			tp := path_.Ext(a.Name)
+			if tp != "" {
+				for _, v_ := range picture {
+					if tp[1:] == v_ {
+						_ = os.Remove("Thumbnail/" + v.FileID + ".jpg")
+						break
+					}
+				}
+			}
 			DataDelete(&Data{
 				FileID: v.FileID,
 			})
-			x:=StoreQuery(&Store{
+			x := StoreQuery(&Store{
 				ID: v.StoreID,
 			})
 			StoreUpdate(&Store{
@@ -332,9 +340,8 @@ func DirDelete(fileid string)  {
 		}
 	}
 	b := UserQuery(&User{UserID: a.UserID})
-	UserUpdate(&User{UserID: a.UserID,Used: b.Used-totalsize})
+	UserUpdate(&User{UserID: a.UserID, Used: b.Used - totalSize})
 	DataDelete(&Data{
 		FileID: fileid,
 	})
 }
-
