@@ -318,7 +318,7 @@ func DirDelete(fileid string) {
 		if DeleteOneDriveFile(v.ItemID, v.StoreID) {
 			totalSize += v.Size
 			picture := []string{"jpg", "jpeg", "bmp", "gif", "png", "tif"}
-			tp := path_.Ext(a.Name)
+			tp := path_.Ext(v.Name)
 			if tp != "" {
 				for _, v_ := range picture {
 					if tp[1:] == v_ {
