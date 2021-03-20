@@ -551,7 +551,7 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		return ctx.JSON(200, hhhh{
 			Version: version.Version,
-			Time:    ReadIni("aria2", "time"),
+			Time:    ReadIni("Aria2", "time"),
 		})
 	})
 

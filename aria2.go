@@ -205,7 +205,7 @@ func aria2taskchange(tmp *aria2change) error {
 	} else if tmp.Type == 3 {
 		_, err = aria2client.Unpause(tmp.Gid)
 	} else if tmp.Type == 4 {
-		_, err = aria2client.ForceRemove(tmp.Gid)
+		_, err = aria2client.Remove(tmp.Gid)
 		totalinfo, _ := aria2client.TellStatus(tmp.Gid)
 		err = os.RemoveAll(totalinfo.Dir)
 		TaskDelete(&Task{
