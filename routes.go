@@ -504,11 +504,11 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		tmp := new(aria2config)
 		_ = ctx.Bind(tmp)
-		ModifyIni("aria2", "enable", tmp.Status)
-		ModifyIni("aria2", "port", tmp.Port)
-		ModifyIni("aria2", "token", tmp.Secret)
+		ModifyIni("Aria2", "enable", tmp.Status)
+		ModifyIni("Aria2", "port", tmp.Port)
+		ModifyIni("Aria2", "token", tmp.Secret)
 		ModifyIni("TmpFile", "path", tmp.TmpDownPath)
-		ModifyIni("aria2", "time", tmp.Time)
+		ModifyIni("Aria2", "time", tmp.Time)
 		if aria2client != nil {
 			_ = aria2client.Close()
 		}
@@ -527,11 +527,11 @@ func RegisterRoutes(e *echo.Echo) {
 			return ctx.JSON(400, "failed")
 		}
 		tmp := aria2config{
-			Status:      ReadIni("aria2", "enable"),
-			Port:        ReadIni("aria2", "port"),
-			Secret:      ReadIni("aria2", "token"),
+			Status:      ReadIni("Aria2", "enable"),
+			Port:        ReadIni("Aria2", "port"),
+			Secret:      ReadIni("Aria2", "token"),
 			TmpDownPath: ReadIni("TmpFile", "path"),
-			Time:        ReadIni("aria2", "time"),
+			Time:        ReadIni("Aria2", "time"),
 		}
 		return ctx.JSON(200, tmp)
 	})
