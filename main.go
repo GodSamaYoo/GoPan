@@ -35,5 +35,5 @@ func main() {
 		e.Logger.Fatal(e.Start(":" + ServicePort))
 	}()
 	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
-	/*e.Logger.Fatal(e.Start(":" + ServicePort))*/
+	//e.Logger.Fatal(e.Start(":" + ServicePort))
 }

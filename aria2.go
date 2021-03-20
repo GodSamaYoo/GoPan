@@ -78,12 +78,16 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 					_ = ioutil.WriteFile("Thumbnail/"+fileid+".jpg", files, 0644)
 				}
 				path_ := path.Dir(vv.Path[len(dir_):])
+				fmt.Println("a.Path：" + a.Path)
+				fmt.Println("vv.Path：" + a.Path)
+				fmt.Println("path_：" + path_)
+				fmt.Println("dir_：" + dir_)
 				if a.Path == "/" {
 					if path_ == "." {
 						path_ = "/"
 					}
 				} else {
-					if path_ == "." {
+					if path_ == "." || path_ == "/" {
 						path_ = a.Path
 					} else {
 						path_ = a.Path + path_
