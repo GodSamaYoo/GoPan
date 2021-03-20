@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build1:
+  Build-liunx_amd64:
     runs-on: ubuntu-18.04
     
     steps:
@@ -33,7 +33,7 @@ jobs:
         name: Build-liunx_amd64
         path: GoPan_liunx_amd64
 
-  build2:
+  Build-windows_amd64:
     runs-on: ubuntu-18.04
     
     steps:
@@ -60,7 +60,7 @@ jobs:
         name: Build-windows_amd64
         path: GoPan_windows_amd64.exe        
         
-  build3:
+  Build-liunx_arm:
     runs-on: ubuntu-18.04
     
     steps:
@@ -87,7 +87,7 @@ jobs:
         name: Build-liunx_arm
         path: GoPan_liunx_arm
     
-  build4:
+  Build-liunx_arm64:
     runs-on: ubuntu-18.04
     
     steps:
