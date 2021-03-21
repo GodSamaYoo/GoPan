@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/robfig/cron/v3"
+	"golang.org/x/crypto/acme/autocert"
 	"strconv"
 )
 
@@ -34,6 +35,7 @@ func main() {
 	go func() {
 		e.Logger.Fatal(e.Start(":" + ServicePort))
 	}()
-	e.Logger.Fatal(e.StartTLS(":443", "crt/server.crt", "crt/server.key"))
+	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
+	e.Logger.Fatal(e.StartAutoTLS(":443"))
 	//e.Logger.Fatal(e.Start(":" + ServicePort))
 }
