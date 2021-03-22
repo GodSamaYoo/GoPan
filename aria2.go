@@ -53,7 +53,19 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 			dir_ := strings.ReplaceAll(infos.Dir, `\`, `/`)
 			for _, vv := range infos.Files {
 				length, _ := strconv.ParseInt(vv.Length, 10, 64)
-				c, d := GetOneDriveAdd(b.Email, a.Path, path.Base(vv.Path), length)
+				path_ := path.Dir(vv.Path[len(dir_):])
+				if a.Path == "/" {
+					if path_ == "." {
+						path_ = "/"
+					}
+				} else {
+					if path_ == "." || path_ == "/" {
+						path_ = a.Path
+					} else {
+						path_ = a.Path + path_
+					}
+				}
+				c, d := GetOneDriveAdd(b.Email, path_, path.Base(vv.Path), length)
 				if d == "" {
 					return
 				}
@@ -77,22 +89,6 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 					files, _ := ioutil.ReadAll(file.Body)
 					_ = ioutil.WriteFile("Thumbnail/"+fileid+".jpg", files, 0644)
 				}
-				path_ := path.Dir(vv.Path[len(dir_):])
-				fmt.Println("a.Path：" + a.Path)
-				fmt.Println("vv.Path：" + a.Path)
-				fmt.Println("path_：" + path_)
-				fmt.Println("dir_：" + dir_)
-				if a.Path == "/" {
-					if path_ == "." {
-						path_ = "/"
-					}
-				} else {
-					if path_ == "." || path_ == "/" {
-						path_ = a.Path
-					} else {
-						path_ = a.Path + path_
-					}
-				}
 				DataAdd(&Data{
 					FileID:  fileid,
 					UserID:  a.UserID,
@@ -103,7 +99,10 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 					StoreID: c,
 					ItemID:  itemid,
 				})
-				UserUpdate(&User{UserID: b.UserID, Used: b.Used + int64(math.Floor(float64(length)/1024+0.5))})
+				UserUpdate(&User{
+					UserID: a.UserID,
+					Used:   b.Used + int64(math.Floor(float64(length)/1024+0.5)),
+				})
 				x := StoreQuery(&Store{
 					ID: c,
 				})
