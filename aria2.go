@@ -113,6 +113,7 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 				if path_ != "/" {
 					CreateDir(b.Email, path.Dir(path_), path.Base(path_))
 				}
+				_ = os.Remove(vv.Path)
 			}
 			err := os.RemoveAll(infos.Dir)
 			if err != nil {
