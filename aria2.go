@@ -47,11 +47,11 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 			a := TaskQuery(&Task{
 				TmpPath: infos.Dir,
 			})
-			b := UserQuery(&User{
-				UserID: a.UserID,
-			})
 			dir_ := strings.ReplaceAll(infos.Dir, `\`, `/`)
 			for _, vv := range infos.Files {
+				b := UserQuery(&User{
+					UserID: a.UserID,
+				})
 				length, _ := strconv.ParseInt(vv.Length, 10, 64)
 				path_ := path.Dir(vv.Path[len(dir_):])
 				if a.Path == "/" {
@@ -151,6 +151,7 @@ func aria2download(url []string, path string, userid int) []string {
 			UserID:  userid,
 			Path:    path,
 			TmpPath: tmp,
+			Type:    "aria2",
 		})
 		gids = append(gids, gid)
 	}
@@ -163,6 +164,7 @@ func aria2status(userid int) []aria2downloadinfo {
 	var infos []aria2downloadinfo
 	task := TasksQuery(&Task{
 		UserID: userid,
+		Type:   "aria2",
 	})
 	for _, v := range task {
 		totalinfo, _ := aria2client.TellStatus(v.Gid)
