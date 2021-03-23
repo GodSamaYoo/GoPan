@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
@@ -125,7 +124,7 @@ func GetOneDriveAdd(email, path, filename string, Need int64) (int, string) {
 		Email: email,
 	})
 	if Need > (a.Volume - a.Used - 1) {
-		echo.Logger.Info("用户容量不足")
+		fmt.Println("用户容量不足")
 		return -1, ""
 	}
 	c := UserGroupQuery(&UserGroup{
@@ -141,7 +140,7 @@ func GetOneDriveAdd(email, path, filename string, Need int64) (int, string) {
 		})
 		if Need > (f.Volume - f.Used - 1) {
 			if i == len(d) {
-				echo.Logger.Info("储存策略容量不足")
+				fmt.Println("储存策略容量不足")
 				return -1, ""
 			}
 			continue
