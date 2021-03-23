@@ -47,6 +47,10 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 			a := TaskQuery(&Task{
 				TmpPath: infos.Dir,
 			})
+			TaskUpdate(&Task{
+				TmpPath: infos.Dir,
+				Status:  "上传中",
+			})
 			dir_ := strings.ReplaceAll(infos.Dir, `\`, `/`)
 			for _, vv := range infos.Files {
 				b := UserQuery(&User{
@@ -115,6 +119,10 @@ func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 				}
 				_ = os.Remove(vv.Path)
 			}
+			TaskUpdate(&Task{
+				TmpPath: infos.Dir,
+				Status:  "上传成功",
+			})
 			err := os.RemoveAll(infos.Dir)
 			if err != nil {
 				fmt.Println("移除临时文件失败")
@@ -151,7 +159,8 @@ func aria2download(url []string, path string, userid int) []string {
 			UserID:  userid,
 			Path:    path,
 			TmpPath: tmp,
-			Type:    "aria2",
+			Type:    "下载",
+			Status:  "下载中",
 		})
 		gids = append(gids, gid)
 	}
@@ -164,7 +173,7 @@ func aria2status(userid int) []aria2downloadinfo {
 	var infos []aria2downloadinfo
 	task := TasksQuery(&Task{
 		UserID: userid,
-		Type:   "aria2",
+		Type:   "下载",
 	})
 	for _, v := range task {
 		totalinfo, _ := aria2client.TellStatus(v.Gid)
