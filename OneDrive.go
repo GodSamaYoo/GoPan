@@ -364,7 +364,7 @@ func FileUpOneDrive(length int64, email, path1, path2, path3 string) {
 func Aria2OneDriveUp(filepath string, size int64, url string, storeid int) string {
 	f, _ := os.Open(filepath)
 	defer f.Close()
-	buf := make([]byte, 1024*320*80)
+	buf := make([]byte, 1024*320*150)
 	n := int64(0)
 	var status string
 	for {
@@ -373,15 +373,15 @@ func Aria2OneDriveUp(filepath string, size int64, url string, storeid int) strin
 		if err == io.EOF {
 			break
 		}
-		if num < 1024*320*80 {
+		if num < 1024*320*150 {
 			buf_ := make([]byte, num)
 			buf_ = buf[:num]
 			reader := bytes.NewReader(buf_)
-			status = OneDriveUp(url, reader, (n-1)*1024*320*80, (n-1)*1024*320*80+int64(num)-1, size, storeid)
+			status = OneDriveUp(url, reader, (n-1)*1024*320*150, (n-1)*1024*320*150+int64(num)-1, size, storeid)
 			if status == "-1" {
 				i := 0
 				for {
-					status = OneDriveUp(url, reader, (n-1)*1024*320*80, (n-1)*1024*320*80+int64(num)-1, size, storeid)
+					status = OneDriveUp(url, reader, (n-1)*1024*320*150, (n-1)*1024*320*150+int64(num)-1, size, storeid)
 					if status != "-1" || i == 5 {
 						break
 					}
@@ -390,11 +390,11 @@ func Aria2OneDriveUp(filepath string, size int64, url string, storeid int) strin
 			}
 		} else {
 			reader := bytes.NewReader(buf)
-			status = OneDriveUp(url, reader, (n-1)*1024*320*80, n*1024*320*80-1, size, storeid)
+			status = OneDriveUp(url, reader, (n-1)*1024*320*150, n*1024*320*150-1, size, storeid)
 			if status == "-1" {
 				i := 0
 				for {
-					status = OneDriveUp(url, reader, (n-1)*1024*320*80, n*1024*320*80-1, size, storeid)
+					status = OneDriveUp(url, reader, (n-1)*1024*320*150, n*1024*320*150-1, size, storeid)
 					if status != "-1" || i == 5 {
 						break
 					}
