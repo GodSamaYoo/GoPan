@@ -49,7 +49,7 @@ func ReadIni(Section string, Key string) string {
 	return text
 }
 
-func ModifyIni(Section, Key ,value string) {
+func ModifyIni(Section, Key, value string) {
 	cfg := OpenIni(IniPath)
 	cfg.Section(Section).Key(Key).SetValue(value)
 	_ = cfg.SaveTo(IniPath)

@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-func GetPathData(email,path string) (data_ []PathData) {
+func GetPathData(email, path string) (data_ []PathData) {
 	tmp_ := UserQuery(&User{
 		Email: email,
 	})
-	data := DatasQuery(&Data{UserID: tmp_.UserID,Path: path})
+	data := DatasQuery(&Data{UserID: tmp_.UserID, Path: path})
 	for _, v := range data {
 		tmp := PathData{
 			DataFileId: v.FileID,
@@ -25,16 +25,16 @@ func GetPathData(email,path string) (data_ []PathData) {
 	return data_
 }
 
-func CreateDir(email,path,name string) bool {
+func CreateDir(email, path, name string) bool {
 	tmp_ := UserQuery(&User{
 		Email: email,
 	})
 	tmp := Data{
-		FileID:  md5_(time.Now().String()+name),
-		UserID:  tmp_.UserID,
-		Name:    name,
-		Type:    "dir",
-		Path:    path,
+		FileID: md5_(time.Now().String() + name),
+		UserID: tmp_.UserID,
+		Name:   name,
+		Type:   "dir",
+		Path:   path,
 	}
 	return DataAdd(&tmp)
 }
@@ -78,7 +78,7 @@ func GetUserInfo(email string) *UserInfo {
 
 //判断本地容量是否足够
 func IsLocalVolume(Need int64) bool {
-	used,_ := DirSize(TmpPath)
+	used, _ := DirSize(TmpPath)
 	free := TmpVolume - used
 	if free < Need {
 		return false
@@ -87,7 +87,7 @@ func IsLocalVolume(Need int64) bool {
 }
 
 //判断用户容量是否足够
-func IsUserVolume(email string,Need int64) bool {
+func IsUserVolume(email string, Need int64) bool {
 	a := UserQuery(&User{
 		Email: email,
 	})
@@ -100,7 +100,7 @@ func IsUserVolume(email string,Need int64) bool {
 
 //判断储存策略容量是否足够
 
-func IsStoreVolume(id int,Need int64) bool {
+func IsStoreVolume(id int, Need int64) bool {
 	a := StoreQuery(&Store{
 		ID: id,
 	})
@@ -111,16 +111,14 @@ func IsStoreVolume(id int,Need int64) bool {
 	return true
 }
 
-
-
 //获取目录已用大小  单位：KB
-func DirSize(path string) (int64,error) {
+func DirSize(path string) (int64, error) {
 	var size int64
-	err := filepath.Walk(path,func(_ string,info os.FileInfo,err error) error {
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			size += info.Size()
 		}
 		return nil
 	})
-	return size/1024+1,err
+	return size/1024 + 1, err
 }

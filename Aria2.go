@@ -4,12 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/zyxar/argo/rpc"
-	"io/ioutil"
-	"math"
-	"net/http"
 	"os"
-	"path"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -20,7 +15,10 @@ func aria2begin() rpc.Client {
 	if aria2enable == "no" {
 		return nil
 	}
-	var err error
+	if UploadPools == nil {
+		UploadPools = NewUploadPool(10)
+		UploadPools.Run()
+	}
 	aria2token := ReadIni("Aria2", "token")
 	port := ReadIni("Aria2", "port")
 	aria2url := "http://127.0.0.1:" + port + "/jsonrpc"
@@ -42,92 +40,9 @@ func (DummyNotifier) OnDownloadError(events []rpc.Event)      {}
 func (DummyNotifier) OnBtDownloadComplete(events []rpc.Event) {}
 func (DummyNotifier) OnDownloadComplete(events []rpc.Event) {
 	for _, v := range events {
-		infos, _ := aria2client.TellStatus(v.Gid)
-		if len(infos.FollowedBy) == 0 {
-			a := TaskQuery(&Task{
-				TmpPath: infos.Dir,
-			})
-			TaskUpdate(&Task{
-				TmpPath: infos.Dir,
-				Status:  "上传中",
-			})
-			dir_ := strings.ReplaceAll(infos.Dir, `\`, `/`)
-			for _, vv := range infos.Files {
-				b := UserQuery(&User{
-					UserID: a.UserID,
-				})
-				length, _ := strconv.ParseInt(vv.Length, 10, 64)
-				path_ := path.Dir(vv.Path[len(dir_):])
-				if a.Path == "/" {
-					if path_ == "." {
-						path_ = "/"
-					}
-				} else {
-					if path_ == "." || path_ == "/" {
-						path_ = a.Path
-					} else {
-						path_ = a.Path + path_
-					}
-				}
-				c, d := GetOneDriveAdd(b.Email, path_, path.Base(vv.Path), length)
-				if d == "" {
-					return
-				}
-				itemid := Aria2OneDriveUp(vv.Path, length, d, c)
-				picture := []string{"jpg", "jpeg", "bmp", "gif", "png", "tif"}
-				tp := path.Ext(path.Base(vv.Path))
-				url_ := ""
-				if tp != "" {
-					for _, v_ := range picture {
-						if tp[1:] == v_ {
-							url_ = GetThumbnail(itemid, c)
-							break
-						}
-					}
-				}
-				fileid := md5_(path.Base(vv.Path) + time.Now().String())
-				if url_ != "" {
-					os.Mkdir("Thumbnail", 0777)
-					file, _ := http.Get(url_)
-					defer file.Body.Close()
-					files, _ := ioutil.ReadAll(file.Body)
-					_ = ioutil.WriteFile("Thumbnail/"+fileid+".jpg", files, 0644)
-				}
-				DataAdd(&Data{
-					FileID:  fileid,
-					UserID:  a.UserID,
-					Name:    path.Base(vv.Path),
-					Type:    "file",
-					Path:    path_,
-					Size:    int64(math.Floor(float64(length)/1024 + 0.5)),
-					StoreID: c,
-					ItemID:  itemid,
-				})
-				UserUpdate(&User{
-					UserID: a.UserID,
-					Used:   b.Used + int64(math.Floor(float64(length)/1024+0.5)),
-				})
-				x := StoreQuery(&Store{
-					ID: c,
-				})
-				StoreUpdate(&Store{
-					ID:   x.ID,
-					Used: x.Used + int64(math.Floor(float64(length)/1024+0.5)),
-				})
-				if path_ != "/" {
-					CreateDir(b.Email, path.Dir(path_), path.Base(path_))
-				}
-				_ = os.Remove(vv.Path)
-			}
-			TaskUpdate(&Task{
-				TmpPath: infos.Dir,
-				Status:  "上传成功",
-			})
-			err := os.RemoveAll(infos.Dir)
-			if err != nil {
-				fmt.Println("移除临时文件失败")
-				fmt.Println(err)
-			}
+		info, _ := aria2client.TellStatus(v.Gid)
+		if len(info.FollowedBy) == 0 {
+			UploadPools.JobsChannel <- &UploadTasks{infos: info}
 		}
 	}
 }

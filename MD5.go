@@ -11,7 +11,7 @@ import (
 
 func md5_(s string) string {
 	m := md5.New()
-	m.Write([]byte (s))
+	m.Write([]byte(s))
 	return hex.EncodeToString(m.Sum(nil))[8:24]
 }
 
@@ -32,13 +32,14 @@ func DesEncrypt(origData_, key_ string) (string, error) {
 	return tmp, nil
 }
 func PKCS5Padding(cipherText []byte, blockSize int) []byte {
-	padding := blockSize - len(cipherText) % blockSize
+	padding := blockSize - len(cipherText)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(cipherText, padText...)
 }
+
 //Des对称解密
-func DesDecrypt(crypted_ , key_ string) (string, error) {
-	crypted,err := base64.StdEncoding.DecodeString(crypted_)
+func DesDecrypt(crypted_, key_ string) (string, error) {
+	crypted, err := base64.StdEncoding.DecodeString(crypted_)
 	key := []byte(key_)
 	block, err := des.NewCipher(key)
 	if err != nil {
