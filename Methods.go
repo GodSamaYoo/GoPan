@@ -39,13 +39,6 @@ func CreateDir(email, path, name string) bool {
 	return DataAdd(&tmp)
 }
 
-func RenameData(tmp *UpdateType) bool {
-	if !UpdateFile(tmp) {
-		return false
-	}
-	return true
-}
-
 func GetLogin(email string, pw string) bool {
 	row := UserQuery(&User{
 		Email:    email,
@@ -120,5 +113,5 @@ func DirSize(path string) (int64, error) {
 		}
 		return nil
 	})
-	return size/1024 + 1, err
+	return size, err
 }

@@ -29,12 +29,12 @@ func CheckSqlite() {
 			Email:    "admin@godcloud.com",
 			Password: "49ba59abbe56e057",
 			GroupID:  1,
-			Volume:   1048576,
+			Volume:   5497558138880,
 		})
 		db.Create(&UserGroup{
 			GroupID: 1,
 			Name:    "管理员",
-			Volume:  1048576,
+			Volume:  5497558138880,
 			StoreID: "1",
 		})
 		fmt.Println("用户名：admin@godcloud.com\n密码：123456")
@@ -174,6 +174,13 @@ func DataAdd(tmp *Data) bool {
 	}
 	return false
 }
+func DataUpdate(tmp *Data) bool {
+	num := db.Model(&Data{}).Where("file_id = ?", tmp.FileID).Updates(tmp).RowsAffected
+	if num == 1 {
+		return true
+	}
+	return false
+}
 func DataDelete(tmp *Data) bool {
 	num := db.Delete(tmp, "file_id = ?", tmp.FileID).RowsAffected
 	if num == 1 {
@@ -258,34 +265,33 @@ func StoreUpdate(tmp *Store) bool {
 }
 
 //重命名文件 文件夹
-func UpdateFile(tmp *UpdateType) bool {
-	tmp_ := UserQuery(&User{
-		Email: tmp.Email,
+func UpdateFile(FileID, NewName string) bool {
+	tmp := DataQuery(&Data{
+		FileID: FileID,
 	})
-	num := db.Where(&Data{UserID: tmp_.UserID, Name: tmp.NewName, Type: tmp.Type, Path: tmp.Path}).Find(&Data{}).RowsAffected
-	if num != 0 {
+	isExistFile := DataQuery(&Data{Path: tmp.Path, Name: NewName, Type: tmp.Type, UserID: tmp.UserID})
+	if isExistFile != nil {
 		return false
 	}
 	if tmp.Type == "dir" {
 		var oldpath, newpath string
 		if tmp.Path == "/" {
-			oldpath = tmp.Path + tmp.OldName + "%"
-			newpath = tmp.Path + tmp.NewName
+			oldpath = tmp.Path + tmp.Name
+			newpath = tmp.Path + NewName
 		} else {
-			oldpath = tmp.Path + "/" + tmp.OldName + "%"
-			newpath = tmp.Path + "/" + tmp.NewName
+			oldpath = tmp.Path + "/" + tmp.Name
+			newpath = tmp.Path + "/" + NewName
 		}
-		db.Model(&Data{}).Where("path LIKE ? AND user_id = ?", oldpath, tmp_.UserID).Update("path", newpath)
+		db.Model(&Data{}).Where("path = ? AND user_id = ?", oldpath, tmp.UserID).UpdateColumn("path", gorm.Expr("? || substring(path,?)", newpath, len(oldpath)+1))
+		db.Model(&Data{}).Where("path LIKE ? AND user_id = ?", oldpath+"/%", tmp.UserID).UpdateColumn("path", gorm.Expr("? || substring(path,?)", newpath, len(oldpath)+1))
 	} else {
-		tmps := DataQuery(&Data{
-			FileID: tmp.FileID,
-		})
-		if !RenameOneDriveFile(tmps.ItemID, tmps.StoreID, tmp.NewName) {
+		if !RenameOneDriveFile(tmp.ItemID, tmp.StoreID, NewName) {
 			return false
 		}
 	}
-	db.Model(&Data{}).Where("file_id = ?", tmp.FileID).Updates(Data{
-		Name: tmp.NewName,
+	DataUpdate(&Data{
+		FileID: FileID,
+		Name:   NewName,
 	})
 	return true
 }
@@ -344,4 +350,34 @@ func DirDelete(fileid string) {
 	DataDelete(&Data{
 		FileID: fileid,
 	})
+}
+
+//移动文件（夹）
+func FileMove(id, newpath string) bool {
+	file := DataQuery(&Data{FileID: id})
+	isExistFile := DataQuery(&Data{Path: newpath, Name: file.Name, Type: file.Type, UserID: file.UserID})
+	if isExistFile != nil {
+		return false
+	}
+	oldpath_ := ""
+	newpath_ := ""
+	if file.Path == "/" {
+		oldpath_ = file.Path + file.Name
+	} else {
+		oldpath_ = file.Path + "/" + file.Name
+	}
+	if newpath == "/" {
+		newpath_ = newpath + file.Name
+	} else {
+		newpath_ = newpath + "/" + file.Name
+	}
+	DataUpdate(&Data{
+		FileID: id,
+		Path:   newpath,
+	})
+	if file.Type == "dir" {
+		db.Model(&Data{}).Where("path = ? AND user_id = ?", oldpath_, file.UserID).UpdateColumn("path", gorm.Expr("? || substring(path,?)", newpath_, len(oldpath_)+1))
+		db.Model(&Data{}).Where("path LIKE ? AND user_id = ?", oldpath_+"/%", file.UserID).UpdateColumn("path", gorm.Expr("? || substring(path,?)", newpath_, len(oldpath_)+1))
+	}
+	return true
 }

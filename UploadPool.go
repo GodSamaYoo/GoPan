@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/zyxar/argo/rpc"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"os"
 	"path"
@@ -17,7 +16,7 @@ type UploadTasks struct {
 	infos rpc.StatusInfo
 }
 
-func (t *UploadTasks)Execute()  {
+func (t *UploadTasks) Execute() {
 	a := TaskQuery(&Task{
 		TmpPath: t.infos.Dir,
 	})
@@ -73,20 +72,20 @@ func (t *UploadTasks)Execute()  {
 			Name:    path.Base(vv.Path),
 			Type:    "file",
 			Path:    path_,
-			Size:    int64(math.Floor(float64(length)/1024 + 0.5)),
+			Size:    length,
 			StoreID: c,
 			ItemID:  itemid,
 		})
 		UserUpdate(&User{
 			UserID: a.UserID,
-			Used:   b.Used + int64(math.Floor(float64(length)/1024+0.5)),
+			Used:   b.Used + length,
 		})
 		x := StoreQuery(&Store{
 			ID: c,
 		})
 		StoreUpdate(&Store{
 			ID:   x.ID,
-			Used: x.Used + int64(math.Floor(float64(length)/1024+0.5)),
+			Used: x.Used + length,
 		})
 		if path_ != "/" {
 			CreateDir(b.Email, path.Dir(path_), path.Base(path_))
@@ -103,27 +102,27 @@ func (t *UploadTasks)Execute()  {
 		fmt.Println(err)
 	}
 }
+
 type UploadPool struct {
-	WorkNum int
+	WorkNum     int
 	JobsChannel chan *UploadTasks
-	process int
 }
 
-func (p *UploadPool)Worker()  {
-	for a := range p.JobsChannel{
+func (p *UploadPool) Worker() {
+	for a := range p.JobsChannel {
 		a.Execute()
 	}
 }
 
-func (p *UploadPool)Run()  {
-	for i:=0;i<p.WorkNum;i++ {
+func (p *UploadPool) Run() {
+	for i := 0; i < p.WorkNum; i++ {
 		go p.Worker()
 	}
 }
 func NewUploadPool(num int) *UploadPool {
 	p := UploadPool{
 		WorkNum:     num,
-		JobsChannel: make(chan *UploadTasks,100),
+		JobsChannel: make(chan *UploadTasks, 100),
 	}
 	return &p
 }

@@ -16,9 +16,10 @@ func CheckIni() {
 		cfg := OpenIni(IniPath)
 		if cfg != nil {
 			_, _ = cfg.Section("TmpFile").NewKey("path", "TmpFile")
-			_, _ = cfg.Section("TmpFile").NewKey("volume", "1048576")
+			_, _ = cfg.Section("TmpFile").NewKey("volume", "10737418240")
 			_, _ = cfg.Section("Aria2").NewKey("enable", "no")
 			_, _ = cfg.Section("Service").NewKey("port", "2020")
+			_, _ = cfg.Section("GoPool").NewKey("num", "10")
 			_, _ = cfg.Section("Des").NewKey("key", md5_(time.Now().String())[8:16])
 			_ = os.Mkdir("TmpFile", 0777)
 			err = cfg.SaveTo(IniPath)

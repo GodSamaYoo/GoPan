@@ -6,7 +6,6 @@ import (
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"os"
 	"path"
@@ -119,7 +118,6 @@ func RefreshAllToken() {
 
 //获得上传地址
 func GetOneDriveAdd(email, path, filename string, Need int64) (int, string) {
-	Need = Need/1024 + 1
 	a := UserQuery(&User{
 		Email: email,
 	})
@@ -348,17 +346,17 @@ func FileUpOneDrive(length int64, email, path1, path2, path3 string) {
 		Name:    path.Base(path1),
 		Type:    "file",
 		Path:    path_,
-		Size:    int64(math.Floor(float64(length)/1024 + 0.5)),
+		Size:    length,
 		StoreID: c,
 		ItemID:  itemid,
 	})
-	UserUpdate(&User{UserID: a.UserID, Used: a.Used + int64(math.Floor(float64(length)/1024+0.5))})
+	UserUpdate(&User{UserID: a.UserID, Used: a.Used + length})
 	x := StoreQuery(&Store{
 		ID: c,
 	})
 	StoreUpdate(&Store{
 		ID:   x.ID,
-		Used: x.Used + int64(math.Floor(float64(length)/1024+0.5)),
+		Used: x.Used + length,
 	})
 }
 func Aria2OneDriveUp(filepath string, size int64, url string, storeid int) string {

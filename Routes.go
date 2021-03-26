@@ -217,17 +217,31 @@ func RegisterRoutes(e *echo.Echo) {
 
 	e.PUT("/api/file", func(ctx echo.Context) error {
 		EnKey, err := ctx.Cookie("GODKEY")
+		_, err = DesDecrypt(EnKey.Value, DesKey)
 		if err != nil {
 			return err
 		}
-		email, _ := DesDecrypt(EnKey.Value, DesKey)
-		tmp := new(UpdateType)
-		_ = ctx.Bind(tmp)
-		tmp.Email = email
-		if RenameData(tmp) {
+		NewName := ctx.FormValue("NewName")
+		FileID := ctx.FormValue("FileID")
+		if UpdateFile(FileID, NewName) {
 			return ctx.JSON(200, "succeed")
 		}
 		return ctx.JSON(200, "failed")
+	})
+
+	//移动文件(夹)
+	e.PATCH("/api/file", func(ctx echo.Context) error {
+		EnKey, err := ctx.Cookie("GODKEY")
+		_, err = DesDecrypt(EnKey.Value, DesKey)
+		if err != nil {
+			return err
+		}
+		fileID := ctx.FormValue("FileID")
+		newPath := ctx.FormValue("NewPath")
+		if !FileMove(fileID, newPath) {
+			return ctx.JSON(200, "failed")
+		}
+		return ctx.JSON(200, "succeed")
 	})
 
 	//用户登录验证
