@@ -17,14 +17,12 @@ func UnArchiver(tmp *UnArchiveFile, email string) {
 		Email: email,
 	})
 	a := DataQuery(&Data{FileID: tmp.FileID})
-	fmt.Println("1")
 	n := Task{
 		UserID: t.UserID,
 		Path:   tmp.NewPath,
 		Type:   "解压",
 		Status: "正在解压",
 	}
-	fmt.Println(n)
 	if !IsUserVolume(email, a.Size*3/2+1) {
 		n.Status = "用户容量不足"
 		TaskAdd(&n)
@@ -35,7 +33,6 @@ func UnArchiver(tmp *UnArchiveFile, email string) {
 		TaskAdd(&n)
 		return
 	}
-	fmt.Println(n)
 	path_ := md5_(time.Now().String() + tmp.FileID)
 	u := path_
 	n.TmpPath = path_
