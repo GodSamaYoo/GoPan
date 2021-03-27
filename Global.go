@@ -13,3 +13,4 @@ var aria2client rpc.Client
 var TmpVolume int64
 var UploadPools *UploadPool
 var UploadPoolNum int
+var Tracker string

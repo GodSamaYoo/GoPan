@@ -119,11 +119,10 @@ type useradd struct {
 	Email    string `json:"Email" form:"Email" query:"Email"`
 	Password string `json:"pw" form:"pw" query:"pw"`
 	GroupID  int    `json:"GroupID" form:"GroupID" query:"GroupID"`
-	Volume   int64  `json:"Volume" form:"Volume" query:"Volume"`
 }
 type usergroupadd struct {
 	Name    string `json:"Name" form:"Name" query:"Name"`
-	Volume  int64  `json:"Volume" form:"Volume" query:"Volume"`
+	Volume  string `json:"Volume" form:"Volume" query:"Volume"`
 	StoreID string `json:"StoreID" form:"StoreID" query:"StoreID"`
 }
 type aria2config struct {

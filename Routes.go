@@ -330,7 +330,7 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		email, _ := DesDecrypt(enkey.Value, DesKey)
 		if !IsAdmin(email) {
-			return ctx.JSON(400, "failed")
+			return ctx.JSON(200, "failed")
 		}
 		tmp := UsersQuery(nil)
 		return ctx.JSON(200, tmp)
@@ -344,7 +344,7 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		email, _ := DesDecrypt(enkey.Value, DesKey)
 		if !IsAdmin(email) {
-			return ctx.JSON(400, "failed")
+			return ctx.JSON(200, "failed")
 		}
 		tmp := UserGroupsQuery(nil)
 		return ctx.JSON(200, tmp)
@@ -358,15 +358,16 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		email, _ := DesDecrypt(enkey.Value, DesKey)
 		if !IsAdmin(email) {
-			return ctx.JSON(400, "failed")
+			return ctx.JSON(200, "failed")
 		}
 		tmp := new(useradd)
 		_ = ctx.Bind(tmp)
+		tmp_ := UserGroupQuery(&UserGroup{GroupID: tmp.GroupID})
 		if UserAdd(&User{
 			Email:    tmp.Email,
 			Password: md5_(tmp.Password),
 			GroupID:  tmp.GroupID,
-			Volume:   tmp.Volume,
+			Volume:   tmp_.Volume,
 		}) {
 			return ctx.JSON(200, "succeed")
 		}
@@ -441,13 +442,14 @@ func RegisterRoutes(e *echo.Echo) {
 		}
 		email, _ := DesDecrypt(enkey.Value, DesKey)
 		if !IsAdmin(email) {
-			return ctx.JSON(400, "failed")
+			return ctx.JSON(200, "failed")
 		}
 		tmp := new(usergroupadd)
 		_ = ctx.Bind(tmp)
+		vol, _ := strconv.ParseInt(tmp.Volume, 10, 64)
 		if UserGroupAdd(&UserGroup{
 			Name:    tmp.Name,
-			Volume:  tmp.Volume,
+			Volume:  vol,
 			StoreID: tmp.StoreID,
 		}) {
 			return ctx.JSON(200, "succeed")

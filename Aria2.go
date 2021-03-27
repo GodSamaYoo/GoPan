@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/zyxar/argo/rpc"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -58,10 +60,10 @@ func aria2download(url []string, path string, userid int) []string {
 		tmp := TmpPath + "/" + md5_(time.Now().String())
 		if len(v) == 40 && !strings.Contains(v, ".") {
 			url_ = "magnet:?xt=urn:btih:" + v
-			gid, err = aria2client.AddURI([]string{url_}, rpc.Option{"dir": tmp})
+			gid, err = aria2client.AddURI([]string{url_}, rpc.Option{"dir": tmp, "bt-tracker": Tracker})
 		} else if strings.Contains(strings.ToLower(v), "magnet:?xt=urn:btih:") {
 			url_ = v
-			gid, err = aria2client.AddURI([]string{url_}, rpc.Option{"dir": tmp})
+			gid, err = aria2client.AddURI([]string{url_}, rpc.Option{"dir": tmp, "bt-tracker": Tracker})
 		} else {
 			gid, err = aria2client.AddURI([]string{v}, rpc.Option{"dir": tmp})
 		}
@@ -152,4 +154,12 @@ func aria2taskchange(tmp *aria2change) error {
 		return err
 	}
 	return nil
+}
+
+//获取最新的Tracker
+func GetLatestTracker() {
+	url := "https://trackerslist.com/all_aria2.txt"
+	res, _ := http.Get(url)
+	body, _ := ioutil.ReadAll(res.Body)
+	Tracker = string(body)
 }

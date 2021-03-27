@@ -19,9 +19,14 @@ func main() {
 	TmpPath = ReadIni("TmpFile", "path")
 	TmpVolume, _ = strconv.ParseInt(ReadIni("TmpFile", "volume"), 10, 64)
 	OneDriveTokens = make(map[int]OneDriveInfo)
+
+	//刷新OneDrive Token
 	go RefreshAllToken()
 	c := cron.New()
 	_, _ = c.AddFunc("*/50 * * * *", RefreshAllToken)
+	//每日凌晨定时更新Tracker
+	go GetLatestTracker()
+	_, _ = c.AddFunc("0 0 * * *", GetLatestTracker)
 	c.Start()
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root:   "html",
