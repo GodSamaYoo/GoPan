@@ -18,7 +18,7 @@ func aria2begin() rpc.Client {
 		return nil
 	}
 	if UploadPools == nil {
-		UploadPools = NewUploadPool(10)
+		UploadPools = NewUploadPool(5)
 		UploadPools.Run()
 	}
 	aria2token := ReadIni("Aria2", "token")

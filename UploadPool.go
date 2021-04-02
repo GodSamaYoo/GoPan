@@ -122,7 +122,7 @@ func (p *UploadPool) Run() {
 func NewUploadPool(num int) *UploadPool {
 	p := UploadPool{
 		WorkNum:     num,
-		JobsChannel: make(chan *UploadTasks, 100),
+		JobsChannel: make(chan *UploadTasks, 50),
 	}
 	return &p
 }
