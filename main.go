@@ -4,7 +4,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/robfig/cron/v3"
-	"golang.org/x/crypto/acme/autocert"
 	"strconv"
 )
 
@@ -37,7 +36,7 @@ func main() {
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
 	//e.Pre(middleware.HTTPSRedirect())
-	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
-	e.Logger.Fatal(e.StartAutoTLS(":" + ServicePort))
-	//e.Logger.Fatal(e.Start(":" + ServicePort))
+	/*e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
+	e.Logger.Fatal(e.StartAutoTLS(":" + ServicePort))*/
+	e.Logger.Fatal(e.Start(":" + ServicePort))
 }
