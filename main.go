@@ -37,10 +37,7 @@ func main() {
 	e.HideBanner = true
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 3}))
 	//e.Pre(middleware.HTTPSRedirect())
-	go func() {
-		e.Logger.Fatal(e.Start(":" + ServicePort))
-	}()
 	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
-	e.Logger.Fatal(e.StartAutoTLS(":443"))
+	e.Logger.Fatal(e.StartAutoTLS(":" + ServicePort))
 	//e.Logger.Fatal(e.Start(":" + ServicePort))
 }

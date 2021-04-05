@@ -93,7 +93,7 @@ func IsUserVolume(email string, Need int64) bool {
 
 //判断储存策略容量是否足够
 
-func IsStoreVolume(id int, Need int64) bool {
+/*func IsStoreVolume(id int, Need int64) bool {
 	a := StoreQuery(&Store{
 		ID: id,
 	})
@@ -102,7 +102,7 @@ func IsStoreVolume(id int, Need int64) bool {
 		return false
 	}
 	return true
-}
+}*/
 
 //获取目录已用大小  单位：KB
 func DirSize(path string) (int64, error) {
